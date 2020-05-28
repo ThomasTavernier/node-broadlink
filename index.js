@@ -4,33 +4,50 @@ const crypto = require('crypto');
 const struct = require('@aksel/structjs');
 
 module.exports = new (class Broadlink {
-  setup(ssid, password, securityMode, ...args) {
-    const payload = Buffer.concat([
-      Buffer.alloc(68),
-      Buffer.of(...ssid.split('').map((letter) => letter.charCodeAt(0))),
-      Buffer.alloc(100 - 68 - ssid.length),
-      Buffer.of(...password.split('').map((letter) => letter.charCodeAt(0))),
-      Buffer.alloc(0x88 - 100 - password.length),
-    ]);
-    payload[0x26] = 0x14;
-    payload[0x84] = ssid.length;
-    payload[0x85] = password.length;
-    payload[0x86] = securityMode;
+  setup(ssid, password, securityMode, interfaces) {
+    return new Promise((resolve) => {
+      const payload = Buffer.concat([
+        Buffer.alloc(68),
+        Buffer.of(...ssid.split('').map((letter) => letter.charCodeAt(0))),
+        Buffer.alloc(100 - 68 - ssid.length),
+        Buffer.of(...password.split('').map((letter) => letter.charCodeAt(0))),
+        Buffer.alloc(0x88 - 100 - password.length),
+      ]);
+      payload[0x26] = 0x14;
+      payload[0x84] = ssid.length;
+      payload[0x85] = password.length;
+      payload[0x86] = securityMode;
 
-    const checksum = payload.reduce((checksum, b) => (checksum = (checksum + b) & 0xffff), 0xbeaf);
-    payload[0x20] = checksum & 0xff;
-    payload[0x21] = checksum >> 8;
+      const checksum = payload.reduce((checksum, b) => (checksum = (checksum + b) & 0xffff), 0xbeaf);
+      payload[0x20] = checksum & 0xff;
+      payload[0x21] = checksum >> 8;
 
-    this._getNetworkInterfaces(args).forEach((networkInterface) => {
-      const sock = dgram.createSocket('udp4');
-      sock.once('listening', () => {
-        sock.setBroadcast(true);
-        sock.sendto(payload, 0, payload.length, 80, networkInterface.broadcastAdress);
-        setTimeout(() => {
-          sock.close;
+      Promise.all(
+        this._getNetworkInterfaces(interfaces).map((networkInterface) => {
+          return new Promise((resolve, reject) => {
+            const socket = dgram.createSocket('udp4');
+            socket.once('listening', () => {
+              socket.setBroadcast(true);
+              socket.sendto(payload, 0, payload.length, 80, networkInterface.broadcastAdress);
+            });
+            socket.on('error', (err) => {
+              socket.close();
+              reject(err);
+            });
+            socket.bind({ address: networkInterface.address }, () => {
+              socket.close();
+              resolve(networkInterface);
+            });
+          });
+        })
+      ).then((interfaces) => {
+        resolve({
+          ssid,
+          password,
+          securityMode: `${securityMode} (${['none', 'WEP', 'WPA1', 'WPA2', 'WPA1/2'][securityMode]})`,
+          interfaces,
         });
       });
-      sock.bind({ address: networkInterface.address });
     });
   }
 
@@ -104,10 +121,10 @@ module.exports = new (class Broadlink {
     ].find(([deviceClass, types]) => types.includes(devtype)) || [device])[0](host, mac, devtype, id, key);
   }
 
-  discover(timeout = 500, ...args) {
+  discover(timeout = 500, interfaces) {
     return new Promise((resolve) => {
       const devices = [];
-      const sockets = this._getNetworkInterfaces(args).map((networkInterface) => {
+      const sockets = this._getNetworkInterfaces(interfaces).map((networkInterface) => {
         const cs = dgram.createSocket('udp4');
 
         cs.once('listening', () => {
@@ -173,9 +190,10 @@ module.exports = new (class Broadlink {
     });
   }
 
-  _getNetworkInterfaces(args) {
-    return Array.isArray(args) && args.length > 0
-      ? args.flat().map((arg) => {
+  _getNetworkInterfaces(interfaces) {
+    interfaces = interfaces && !Array.isArray(interfaces) ? [interfaces] : interfaces;
+    return Array.isArray(interfaces) && interfaces.length > 0
+      ? interfaces.flat().map((arg) => {
           return {
             address: arg.address || arg,
             broadcastAdress: arg.broadcastAdress || '255.255.255.255',
@@ -200,10 +218,8 @@ class device {
     this.host = host;
     this.mac = typeof mac === 'string' ? mac.split(':') : mac;
     this.devtype = devtype || 0x272a;
-    this.id = id || Buffer.from([0, 0, 0, 0]);
-    this.key =
-      key ||
-      Buffer.from([0x09, 0x76, 0x28, 0x34, 0x3f, 0xe9, 0x9e, 0x23, 0x76, 0x5c, 0x15, 0x13, 0xac, 0xcf, 0x8b, 0x02]);
+    this.id = id || [0, 0, 0, 0];
+    this.key = key || [0x09, 0x76, 0x28, 0x34, 0x3f, 0xe9, 0x9e, 0x23, 0x76, 0x5c, 0x15, 0x13, 0xac, 0xcf, 0x8b, 0x02];
     this.count = Math.floor(Math.random() * 0xffff);
     this.iv = Buffer.from([
       0x56,
@@ -229,12 +245,12 @@ class device {
   }
 
   encrypt(payload) {
-    const cipher = crypto.createCipheriv('aes-128-cbc', this.key, this.iv);
+    const cipher = crypto.createCipheriv('aes-128-cbc', Buffer.from(this.key), this.iv);
     return cipher.update(payload);
   }
 
   decrypt(response) {
-    const decipher = crypto.createDecipheriv('aes-128-cbc', this.key, this.iv);
+    const decipher = crypto.createDecipheriv('aes-128-cbc', Buffer.from(this.key), this.iv);
     decipher.setAutoPadding(false);
     return Buffer.concat([decipher.update(response.subarray(0x38)), decipher.final()]);
   }
@@ -272,8 +288,8 @@ class device {
           const payload = this.decrypt(response);
           const key = payload.subarray(0x04, 0x14);
           if (key.length > 0 && key.length % 16 === 0) {
-            this.id = payload.subarray(0x00, 0x04);
-            this.key = key;
+            this.id = [...payload.subarray(0x00, 0x04)];
+            this.key = [...key];
             resolve(this);
           } else {
             reject(new Error('auth failed'));
@@ -399,7 +415,12 @@ class mp1 extends device {
           resolve(
             state === undefined
               ? { s1: undefined, s2: undefined, s3: undefined, s4: undefined }
-              : { s1: state & 0x01, s2: state & 0x02, s3: state & 0x04, s4: state & 0x08 }
+              : {
+                  s1: state & 0x01,
+                  s2: state & 0x02,
+                  s3: state & 0x04,
+                  s4: state & 0x08,
+                }
           );
           return data;
         })
@@ -731,7 +752,7 @@ class rm extends device {
       this.sendPacket(0x6a, Buffer.concat([this._requestHeader, Buffer.of(0x04)]))
         .then((response) => {
           const payload = this.decrypt(response);
-          resolve(payload.subarray(this._requestHeader.length + 4));
+          resolve([...payload.subarray(this._requestHeader.length + 4)]);
         })
         .catch((err) => {
           reject(err);
@@ -899,7 +920,11 @@ class hysen extends device {
       this.sendRequest(Buffer.of(0x01, 0x03, 0x00, 0x00, 0x00, 0x16))
         .then((payload) => {
           const week = [...Array(8).keys()].map((i) => {
-            return { startHour: payload[2 * i + 23], startMinute: payload[2 * i + 24], temp: payload[i + 39] / 2.0 };
+            return {
+              startHour: payload[2 * i + 23],
+              startMinute: payload[2 * i + 24],
+              temp: payload[i + 39] / 2.0,
+            };
           });
           const roomTempAdj = ((payload[13] << 8) + payload[14]) / 2.0;
           resolve({
