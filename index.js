@@ -102,7 +102,9 @@ module.exports = new (class Broadlink {
           0x610e, // RM4 Mini
           0x610f, // RM4c
           0x62bc, // RM4 Mini
-          0x62be, // RM4c Mini
+          0x62be, // RM4c Mini,
+          0x653a, // RM4 Mini (Broadlink)
+          0x6184  // RM4c Pro
         ],
       ],
       [a1, [0x2714]], // A1
