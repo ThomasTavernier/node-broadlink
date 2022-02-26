@@ -1,11 +1,19 @@
 {
   "name": "node-broadlink",
   "description": "A promise based Node.js module for Broadlink controllers",
-  "version": "1.1.0",
-  "main": "index.js",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx tsc",
+    "prepare": "npm run build",
+    "lint": "eslint ."
   },
+  "files": [
+    "package.json",
+    "README.md",
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ThomasTavernier/broadlink-iot.git"
@@ -20,6 +28,17 @@
     "url": "https://github.com/ThomasTavernier/broadlink-iot/issues"
   },
   "homepage": "https://github.com/ThomasTavernier/broadlink-iot#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.18",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.4.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  },
   "dependencies": {
     "@aksel/structjs": "^1.0.0"
   }
