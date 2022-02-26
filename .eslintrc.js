@@ -31,5 +31,14 @@ module.exports = {
         project: ['./tsconfig.json'],
       },
     },
+    {
+      files: ['*.test.ts'],
+      parserOptions: {
+        project: ['./tsconfig.test.json'],
+      },
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
   ],
 };
