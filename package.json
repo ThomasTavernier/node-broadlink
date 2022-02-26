@@ -1,7 +1,7 @@
 {
   "name": "node-broadlink",
   "description": "A promise based Node.js module for Broadlink controllers",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
