@@ -20,6 +20,10 @@ export class Rmmini extends Device {
   public enterLearning(): Promise<void> {
     return this.send(0x3).then();
   }
+
+  public cancelLearning(): Promise<void> {
+    return this.send(0x1e).then();
+  }
 }
 
 export class Rmpro extends Rmmini {

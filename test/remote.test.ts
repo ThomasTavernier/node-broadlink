@@ -6,6 +6,10 @@ const testRmmini = (device: Rmmini, spy: jest.SpyInstance): void => {
     void device.enterLearning();
     expect(spy).toHaveBeenCalledWith(Buffer.from([3, 0, 0, 0]));
   });
+  it('cancelLearning', () => {
+    void device.cancelLearning();
+    expect(spy).toHaveBeenCalledWith(Buffer.from([30, 0, 0, 0]));
+  });
   it('checkData', () => {
     void device.checkData();
     expect(spy).toHaveBeenCalledWith(Buffer.from([4, 0, 0, 0]));
@@ -60,6 +64,10 @@ const testRmminib = (device: Rmminib, spy: jest.SpyInstance): void => {
   it('enterLearning', () => {
     void device.enterLearning();
     expect(spy).toHaveBeenCalledWith(Buffer.from([4, 0, 3, 0, 0, 0]));
+  });
+  it('cancelLearning', () => {
+    void device.cancelLearning();
+    expect(spy).toHaveBeenCalledWith(Buffer.from([4, 0, 30, 0, 0, 0]));
   });
   it('checkData', () => {
     void device.checkData();
