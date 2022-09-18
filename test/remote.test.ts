@@ -26,6 +26,15 @@ const testRmmini = (device: Rmmini, spy: jest.SpyInstance): void => {
       ]),
     );
   });
+  it('sendData:string', () => {
+    void device.sendData('4a07d40711a1b84676cddae3cc3dee5c1506062e630bcccccb2d65254a46b34c');
+    expect(spy).toHaveBeenCalledWith(
+      Buffer.from([
+        2, 0, 0, 0, 74, 7, 212, 7, 17, 161, 184, 70, 118, 205, 218, 227, 204, 61, 238, 92, 21, 6, 6, 46, 99, 11, 204,
+        204, 203, 45, 101, 37, 74, 70, 179, 76,
+      ]),
+    );
+  });
 };
 
 describe('Rmmini', () => {

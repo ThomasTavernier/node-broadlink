@@ -1,6 +1,11 @@
 import Device from './device';
 import struct from './struct';
 
+function hexStringToPulseArray(data: string): number[] {
+  // Take each 2 chars and convert them to a number
+  return data.match(/[\da-f]{2}/gi)?.map((hex) => parseInt(hex, 16)) as number[];
+}
+
 export class Rmmini extends Device {
   TYPE = 'RMMINI';
   protected send(command: number, data: number[] = []): Promise<Buffer> {
@@ -13,8 +18,14 @@ export class Rmmini extends Device {
     return this.send(0x4);
   }
 
-  public sendData(data: number[]): Promise<void> {
-    return this.send(0x2, data).then();
+  public sendData(data: number[] | string): Promise<void> {
+    let pulseArray: number[];
+    if (typeof data === 'string') {
+      pulseArray = hexStringToPulseArray(data);
+    } else {
+      pulseArray = data;
+    }
+    return this.send(0x2, pulseArray).then();
   }
 
   public enterLearning(): Promise<void> {
