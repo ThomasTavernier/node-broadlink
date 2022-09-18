@@ -9,6 +9,16 @@ import { Lb1, Lb2 } from './light';
 import { A1 } from './sensor';
 import { Bg1, Mp1, Sp1, Sp2, Sp2s, Sp3, Sp3s, Sp4, Sp4b } from './switch';
 
+// Export all TypeScript classes, to avoid internal (node-broadlink/dist/...) import for Liberty users */
+export * from './alarm';
+export * from './climate';
+export * from './cover';
+export * from './device';
+export * from './light';
+export * from './remote';
+export * from './sensor';
+export * from './switch';
+
 interface NetworkInterfaceModel {
   address: string;
   broadcastAddress: string;
@@ -22,7 +32,7 @@ const SUPPORTED_TYPES: Record<
     {
       new (host: RemoteInfo, mac: number[], deviceType?: number, model?: string, manufacturer?: string): Device;
     },
-    ...string[]
+    ...string[],
   ]
 > = {
   0x0000: [Sp1, 'SP1', 'Broadlink'],
