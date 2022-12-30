@@ -13,6 +13,8 @@ export default class Device {
     public readonly host: RemoteInfo,
     public readonly mac: number[],
     public readonly deviceType: number = 0x272a,
+    public readonly name: string = '',
+    public readonly isLocked: boolean = false,
     public readonly model: string = '',
     public readonly manufacturer: string = '',
   ) {
