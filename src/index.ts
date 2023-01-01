@@ -26,15 +26,7 @@ interface NetworkInterfaceModel {
 
 type NetworkInterface = NetworkInterfaceModel | NetworkInterfaceModel[];
 
-const SUPPORTED_TYPES: Record<
-  number,
-  [
-    {
-      new (host: RemoteInfo, mac: number[], deviceType?: number, model?: string, manufacturer?: string): Device;
-    },
-    ...string[],
-  ]
-> = {
+const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x0000: [Sp1, 'SP1', 'Broadlink'],
   0x2717: [Sp2, 'NEO', 'Ankuoo'],
   0x2719: [Sp2, 'SP2-compatible', 'Honeywell'],
@@ -235,12 +227,18 @@ export function setup(
   });
 }
 
-export function genDevice(deviceType: number, host: RemoteInfo, mac: number[]): Device {
+export function genDevice(
+  deviceType: number,
+  host: RemoteInfo,
+  mac: number[],
+  name?: string,
+  isLocked?: boolean,
+): Device {
   if (deviceType in SUPPORTED_TYPES) {
-    const [DeviceClazz, ...args] = SUPPORTED_TYPES[deviceType];
-    return new DeviceClazz(host, mac, deviceType, ...args);
+    const [DeviceClazz, model, manufacturer] = SUPPORTED_TYPES[deviceType];
+    return new DeviceClazz(host, mac, deviceType, model, manufacturer, name, isLocked);
   }
-  return new Device(host, mac, deviceType);
+  return new Device(host, mac, deviceType, undefined, undefined, name, isLocked);
 }
 
 export function discover(timeout = 500, interfaces?: NetworkInterface, discoverIpPort = 80): Promise<Device[]> {
@@ -297,7 +295,11 @@ export function discover(timeout = 500, interfaces?: NetworkInterface, discoverI
         const deviceType = msg[0x34] | (msg[0x35] << 8);
         const mac = [...msg.subarray(0x3a, 0x40)].reverse();
         if (!devices.some((device) => device.mac.toString() === mac.toString())) {
-          devices.push(genDevice(deviceType, rinfo, mac));
+          const nameSlice = msg.slice(0x40, 0x7e);
+          const name = nameSlice.slice(0, nameSlice.indexOf(0x00)).toString('utf8');
+          const isLocked = !!msg[0x7f];
+
+          devices.push(genDevice(deviceType, rinfo, mac, name, isLocked));
         }
       });
 
