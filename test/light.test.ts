@@ -4,27 +4,31 @@ import { Lb1, Lb2 } from '../src/light';
 describe('Lb1', () => {
   const device = create(Lb1);
   const spy = spySendPacket(device);
+  const data = {
+    pwr: true,
+    red: 235,
+    blue: 123,
+    green: 38,
+    brightness: 45,
+    colortemp: 38,
+    hue: 8,
+    saturation: 35,
+    transitionduration: 5,
+    maxworktime: 9,
+    bulb_colormode: 4,
+    bulb_scenes: 'a',
+    bulb_scene: 'b',
+    bulb_sceneidx: 1,
+  };
+  it('can decode encoded', () => {
+    expect(device['decode'](device['encode'](0, data))).toEqual(data);
+  });
   it('getState', () => {
     void device.getState();
     expect(spy).toHaveBeenCalledWith(Buffer.from([14, 0, 165, 165, 90, 90, 179, 193, 1, 11, 2, 0, 0, 0, 123, 125]));
   });
   it('setState', () => {
-    void device.setState({
-      pwr: true,
-      red: 235,
-      blue: 123,
-      green: 38,
-      brightness: 45,
-      colortemp: 38,
-      hue: 8,
-      saturation: 35,
-      transitionduration: 5,
-      maxworktime: 9,
-      bulb_colormode: 4,
-      bulb_scenes: 'a',
-      bulb_scene: 'b',
-      bulb_sceneidx: 1,
-    });
+    void device.setState(data);
     expect(spy).toHaveBeenCalledWith(
       Buffer.from([
         219, 0, 165, 165, 90, 90, 5, 5, 2, 11, 207, 0, 0, 0, 123, 34, 112, 119, 114, 34, 58, 49, 44, 34, 114, 101, 100,
@@ -44,26 +48,30 @@ describe('Lb1', () => {
 describe('Lb2', () => {
   const device = create(Lb2);
   const spy = spySendPacket(device);
+  const data = {
+    pwr: true,
+    red: 235,
+    blue: 123,
+    green: 38,
+    brightness: 45,
+    colortemp: 38,
+    hue: 8,
+    saturation: 35,
+    transitionduration: 5,
+    maxworktime: 9,
+    bulb_colormode: 4,
+    bulb_scenes: 'a',
+    bulb_scene: 'b',
+  };
+  it('can decode encoded', () => {
+    expect(device['decode'](device['encode'](0, data))).toEqual(data);
+  });
   it('getState', () => {
     void device.getState();
     expect(spy).toHaveBeenCalledWith(Buffer.from([165, 165, 90, 90, 179, 193, 1, 11, 2, 0, 0, 0, 123, 125]));
   });
   it('setState', () => {
-    void device.setState({
-      pwr: true,
-      red: 235,
-      blue: 123,
-      green: 38,
-      brightness: 45,
-      colortemp: 38,
-      hue: 8,
-      saturation: 35,
-      transitionduration: 5,
-      maxworktime: 9,
-      bulb_colormode: 4,
-      bulb_scenes: 'a',
-      bulb_scene: 'b',
-    });
+    void device.setState(data);
     expect(spy).toHaveBeenCalledWith(
       Buffer.from([
         165, 165, 90, 90, 193, 254, 2, 11, 189, 0, 0, 0, 123, 34, 112, 119, 114, 34, 58, 49, 44, 34, 114, 101, 100, 34,

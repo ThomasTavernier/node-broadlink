@@ -1,5 +1,4 @@
 import { create, spySendPacket } from './index.test';
-import { A1 } from '../src/sensor';
 import { Bg1, Mp1, Sp1, Sp2, Sp2s, Sp3, Sp3s, Sp4, Sp4b } from '../src/switch';
 import SpyInstance = jest.SpyInstance;
 
@@ -65,6 +64,10 @@ describe('Sp3s', () => {
 describe('Sp4', () => {
   const device = create(Sp4);
   const spy = spySendPacket(device);
+  const data = { pwr: false, ntlight: false, indicator: true, ntlbrightness: 3, maxworktime: 5, childlock: false };
+  it('can decode encoded', () => {
+    expect(device['decode'](device['encode'](0, data))).toEqual(data);
+  });
   it('setPower', () => {
     void device.setPower(true);
     expect(spy).toHaveBeenCalledWith(
@@ -80,14 +83,7 @@ describe('Sp4', () => {
     );
   });
   it('setState', () => {
-    void device.setState({
-      pwr: false,
-      ntlight: false,
-      indicator: true,
-      ntlbrightness: 3,
-      maxworktime: 5,
-      childlock: false,
-    });
+    void device.setState(data);
     expect(spy).toHaveBeenCalledWith(
       Buffer.from([
         165, 165, 90, 90, 250, 220, 2, 11, 83, 0, 0, 0, 123, 34, 112, 119, 114, 34, 58, 48, 44, 34, 110, 116, 108, 105,
@@ -106,6 +102,14 @@ describe('Sp4', () => {
 describe('Sp4b', () => {
   const device = create(Sp4b);
   const spy = spySendPacket(device);
+  const data = { pwr: false, ntlight: false, indicator: true, ntlbrightness: 3, maxworktime: 5, childlock: false };
+  it('can decode encoded', () => {
+    expect(device['decode'](device['encode'](0, data))).toEqual({
+      ...data,
+      ntlbrightness: data.ntlbrightness / 1000,
+      maxworktime: data.maxworktime / 1000,
+    });
+  });
   it('setPower', () => {
     void device.setPower(true);
     expect(spy).toHaveBeenCalledWith(
@@ -122,14 +126,7 @@ describe('Sp4b', () => {
     );
   });
   it('setState', () => {
-    void device.setState({
-      pwr: false,
-      ntlight: false,
-      indicator: true,
-      ntlbrightness: 3,
-      maxworktime: 5,
-      childlock: false,
-    });
+    void device.setState(data);
     expect(spy).toHaveBeenCalledWith(
       Buffer.from([
         95, 0, 165, 165, 90, 90, 250, 220, 2, 11, 83, 0, 0, 0, 123, 34, 112, 119, 114, 34, 58, 48, 44, 34, 110, 116,
@@ -148,20 +145,24 @@ describe('Sp4b', () => {
 describe('Bg1', () => {
   const device = create(Bg1);
   const spy = spySendPacket(device);
+  const data = {
+    pwr: true,
+    pwr1: false,
+    pwr2: false,
+    maxworktime: 4,
+    maxworktime1: 5,
+    maxworktime2: 6,
+    idcbrightness: 7,
+  };
+  it('can decode encoded', () => {
+    expect(device['decode'](device['encode'](0, data))).toEqual(data);
+  });
   it('getState', () => {
     void device.getState();
     expect(spy).toHaveBeenCalledWith(Buffer.from([14, 0, 165, 165, 90, 90, 179, 193, 1, 11, 2, 0, 0, 0, 123, 125]));
   });
   it('setState', () => {
-    void device.setState({
-      pwr: true,
-      pwr1: false,
-      pwr2: false,
-      maxworktime: 4,
-      maxworktime1: 5,
-      maxworktime2: 6,
-      idcbrightness: 7,
-    });
+    void device.setState(data);
     expect(spy).toHaveBeenCalledWith(
       Buffer.from([
         107, 0, 165, 165, 90, 90, 84, 224, 2, 11, 95, 0, 0, 0, 123, 34, 112, 119, 114, 34, 58, 49, 44, 34, 112, 119,
