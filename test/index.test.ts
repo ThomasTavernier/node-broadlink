@@ -15,7 +15,10 @@ export const create = <T>(clazz: { new (host: RemoteInfo, mac: number[]): T }): 
 export const spySendPacket = (device: Device): SpyInstance => {
   const spy = jest.spyOn(device as any, 'sendPacket');
   beforeEach(() => {
-    spy.mockClear();
+    spy.mockReturnValue(new Promise((_) => {}));
+  });
+  afterEach(() => {
+    jest.resetAllMocks();
   });
   return spy;
 };

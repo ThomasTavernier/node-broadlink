@@ -8,6 +8,7 @@ import { Dooya } from './cover';
 import { Lb1, Lb2 } from './light';
 import { A1 } from './sensor';
 import { Bg1, Mp1, Sp1, Sp2, Sp2s, Sp3, Sp3s, Sp4, Sp4b } from './switch';
+import { S3 } from './hub';
 
 // Export all TypeScript classes, to avoid internal (node-broadlink/dist/...) import for Liberty users */
 export * from './alarm';
@@ -61,6 +62,7 @@ const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x7583: [Sp4, 'SP mini 3', 'Broadlink'],
   0x7587: [Sp4, 'SP4L-UK', 'Broadlink'],
   0x7d11: [Sp4, 'SP mini 3', 'Broadlink'],
+  0xa569: [Sp4, 'SP4L-UK', 'Broadlink'],
   0xa56a: [Sp4, 'MCB1', 'Broadlink'],
   0xa56b: [Sp4, 'SCB1E', 'Broadlink'],
   0xa56c: [Sp4, 'SP4L-EU', 'Broadlink'],
@@ -73,6 +75,7 @@ const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x618b: [Sp4b, 'SP4L-EU', 'Broadlink'],
   0x6489: [Sp4b, 'SP4L-AU', 'Broadlink'],
   0x648b: [Sp4b, 'SP4M-US', 'Broadlink'],
+  0x648c: [Sp4b, 'SP4L-US', 'Broadlink'],
   0x6494: [Sp4b, 'SCB2', 'Broadlink'],
   0x2737: [Rmmini, 'RM mini 3', 'Broadlink'],
   0x278f: [Rmmini, 'RM mini', 'Broadlink'],
@@ -103,6 +106,12 @@ const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x6508: [Rmminib, 'RM mini 3', 'Broadlink'],
   0x51da: [Rm4mini, 'RM4 mini', 'Broadlink'],
   0x5209: [Rm4mini, 'RM4 TV mate', 'Broadlink'],
+  0x520c: [Rm4mini, 'RM4 mini', 'Broadlink'],
+  0x520d: [Rm4mini, 'RM4C mini', 'Broadlink'],
+  0x5211: [Rm4mini, 'RM4C mate', 'Broadlink'],
+  0x5212: [Rm4mini, 'RM4 TV mate', 'Broadlink'],
+  0x5216: [Rm4mini, 'RM4 mini', 'Broadlink'],
+  0x521c: [Rm4mini, 'RM4 mini', 'Broadlink'],
   0x6070: [Rm4mini, 'RM4C mini', 'Broadlink'],
   0x610e: [Rm4mini, 'RM4 mini', 'Broadlink'],
   0x610f: [Rm4mini, 'RM4C mini', 'Broadlink'],
@@ -112,7 +121,9 @@ const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x648d: [Rm4mini, 'RM4 mini', 'Broadlink'],
   0x6539: [Rm4mini, 'RM4C mini', 'Broadlink'],
   0x653a: [Rm4mini, 'RM4 mini', 'Broadlink'],
+  0x520b: [Rm4pro, 'RM4 pro', 'Broadlink'],
   0x5213: [Rm4pro, 'RM4 pro', 'Broadlink'],
+  0x5218: [Rm4pro, 'RM4C pro', 'Broadlink'],
   0x6026: [Rm4pro, 'RM4 pro', 'Broadlink'],
   0x6184: [Rm4pro, 'RM4C pro', 'Broadlink'],
   0x61a2: [Rm4pro, 'RM4 pro', 'Broadlink'],
@@ -129,11 +140,14 @@ const SUPPORTED_TYPES: Record<number, [typeof Device, string, string]> = {
   0x60c7: [Lb1, 'LB1', 'Broadlink'],
   0x60c8: [Lb1, 'LB1', 'Broadlink'],
   0x6112: [Lb1, 'LB1', 'Broadlink'],
+  0x644b: [Lb1, 'LB1', 'Broadlink'],
   0x644c: [Lb1, 'LB27 R1', 'Broadlink'],
   0x644e: [Lb1, 'LB26 R1', 'Broadlink'],
   0xa4f4: [Lb2, 'LB27 R1', 'Broadlink'],
   0xa5f7: [Lb2, 'LB27 R1', 'Broadlink'],
   0x2722: [S1C, 'S2KIT', 'Broadlink'],
+  0xa59c: [S3, 'S3', 'Broadlink'],
+  0xa64d: [S3, 'S3', 'Broadlink'],
   0x4ead: [Hysen, 'HY02/HY03', 'Hysen'],
   0x4e4d: [Dooya, 'DT360E-45/20', 'Dooya'],
   0x51e3: [Bg1, 'BG800/BG900', 'BG Electrical'],
