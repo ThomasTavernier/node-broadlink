@@ -188,7 +188,7 @@ export class Sp4b extends Sp4 {
 
   protected decode(payload: Buffer): Sp4State {
     const data = this.getValue(
-      JSON.parse(payload.subarray(0x0c, 0x0c + struct('<I').unpack_from(payload, 0x08)[0]).toString()) as Sp4State,
+      JSON.parse(payload.subarray(0x0e, 0x0e + struct('<I').unpack_from(payload, 0xa)[0]).toString()) as Sp4State,
       Boolean,
     ) as Sp4State;
     return {
