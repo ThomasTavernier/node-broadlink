@@ -69,11 +69,7 @@ abstract class Lb<T extends StateModelLb> extends Device {
 
   protected abstract encode(flag: number, state: T): Buffer;
 
-  protected decode(response: Buffer): T {
-    this.decrypt(response);
-    const [js_len] = struct('<I').unpack_from(response, 0xa);
-    return this.mapToBoolean(JSON.parse(response.subarray(0xe, 0xe + js_len).toString()) as StateModelLb<number>) as T;
-  }
+  protected abstract decode(response: Buffer): T;
 }
 
 export class Lb1 extends Lb<StateModelLb1> {
@@ -99,6 +95,11 @@ export class Lb1 extends Lb<StateModelLb1> {
     packet[0x07] = (checksum >> 8) & 0xff;
     return packet;
   }
+
+  protected decode(response: Buffer): StateModelLb1 {
+    const [js_len] = struct('<I').unpack_from(response, 0xa);
+    return this.mapToBoolean(JSON.parse(response.subarray(0xe, 0xe + js_len).toString()) as StateModelLb1<number>);
+  }
 }
 
 export class Lb2 extends Lb<StateModelLb> {
@@ -113,5 +114,10 @@ export class Lb2 extends Lb<StateModelLb> {
     packet[0x04] = checksum & 0xff;
     packet[0x05] = (checksum >> 8) & 0xff;
     return packet;
+  }
+
+  protected decode(response: Buffer): StateModelLb {
+    const [js_len] = struct('<I').unpack_from(response, 0x08);
+    return this.mapToBoolean(JSON.parse(response.subarray(0x0c, 0x0c + js_len).toString()) as StateModelLb<number>);
   }
 }
