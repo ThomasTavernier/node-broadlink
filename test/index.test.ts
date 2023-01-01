@@ -27,7 +27,6 @@ jest.mock('../src', (): typeof index => ({
 
 jest.mock('dgram', () => ({
   createSocket: (): Socket => {
-    /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
     const socket = {
       bind: () => socket,
       once: (_, __) => {},
@@ -51,7 +50,6 @@ jest.mock('dgram', () => ({
         }
       },
     } as Socket;
-    /* eslint-enable @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function */
 
     return socket;
   },

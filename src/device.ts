@@ -13,10 +13,10 @@ export default class Device {
     public readonly host: RemoteInfo,
     public readonly mac: number[],
     public readonly deviceType: number = 0x272a,
-    public readonly name: string = '',
-    public readonly isLocked: boolean = false,
     public readonly model: string = '',
     public readonly manufacturer: string = '',
+    public readonly name: string = '',
+    public readonly isLocked: boolean = false,
   ) {
     this.id = [0, 0, 0, 0];
     this.key = [0x09, 0x76, 0x28, 0x34, 0x3f, 0xe9, 0x9e, 0x23, 0x76, 0x5c, 0x15, 0x13, 0xac, 0xcf, 0x8b, 0x02];

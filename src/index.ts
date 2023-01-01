@@ -231,14 +231,14 @@ export function genDevice(
   deviceType: number,
   host: RemoteInfo,
   mac: number[],
-  name: string,
-  isLocked: boolean,
+  name?: string,
+  isLocked?: boolean,
 ): Device {
   if (deviceType in SUPPORTED_TYPES) {
-    const [DeviceClazz, ...args] = SUPPORTED_TYPES[deviceType];
-    return new DeviceClazz(host, mac, deviceType, name, isLocked, ...args);
+    const [DeviceClazz, model, manufacturer] = SUPPORTED_TYPES[deviceType];
+    return new DeviceClazz(host, mac, deviceType, model, manufacturer, name, isLocked);
   }
-  return new Device(host, mac, deviceType, name, isLocked);
+  return new Device(host, mac, deviceType, undefined, undefined, name, isLocked);
 }
 
 export function discover(timeout = 500, interfaces?: NetworkInterface, discoverIpPort = 80): Promise<Device[]> {
